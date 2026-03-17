@@ -1,143 +1,111 @@
 # cf-ai-sql-agent
 
-An AI-powered Cloudflare Worker that accepts a natural-language analytics question, generates a SQL `SELECT` query with Workers AI, explains the query in plain English, executes it against Cloudflare D1 by default, and can optionally route queries to Postgres or ClickHouse.
+Built as part of the Cloudflare AI application assignment.
 
-## System Architecture
+AI-powered analytics agent built on Cloudflare Workers, Workers AI, and D1 that converts natural language into SQL and executes queries across multiple databases.
 
-The application is built around a single Cloudflare Worker that handles both the frontend and backend:
+Supports:
+- Cloudflare D1 (default)
+- PostgreSQL (Neon serverless)
+- ClickHouse
 
-1. A browser loads the UI from the Worker with `GET /`.
-2. The user types a question or uses voice input powered by the browser `SpeechRecognition` API.
-3. The UI sends the question to `POST /`.
-4. The Worker discovers the live schema dynamically from the selected database.
-5. Workers AI returns a `SELECT` query.
-6. The Worker validates that the SQL is a single safe `SELECT`.
-7. The Worker appends `LIMIT 100` when the query does not include one.
-8. The Worker asks Workers AI for short reasoning and explanation text.
-9. The Worker optionally waits for user approval before execution.
-10. The Worker runs the query against D1, Postgres, or ClickHouse and returns:
-   `question`, `generated_sql`, `reasoning`, `explanation`, `query_plan`, and `result`.
+---
 
-## Cloudflare Components Used
+## 🚀 Live Demo
+
+https://cf-ai-sql-agent.arsh9532.workers.dev/
+
+---
+
+## 🧠 What this project is
+
+This is not just a SQL generator.
+
+It is an AI analytics agent that:
+- understands a natural language question
+- discovers the database schema dynamically
+- generates a safe SQL query
+- explains the reasoning
+- executes the query
+- returns results with optional visualization
+
+The goal is to remove the need for dashboards or SQL knowledge.
+
+---
+
+## 💡 Why this matters (Cloudflare context)
+
+Many teams depend on data but cannot write SQL:
+
+- Sales → "How many users signed up today?"
+- Support → "Top failing endpoints in last 24 hours"
+- Security → "Number of DDoS events by region"
+
+This system allows those questions to be asked directly.
+
+This could be integrated into:
+- internal chat tools (Slack / Google Chat bots)
+- Cloudflare dashboards
+- operational analytics tools
+
+Instead of:
+open dashboard → write query → debug
+
+You get:
+ask → get answer
+
+---
+
+## 🏗️ Architecture
+
+User → UI → Cloudflare Worker → Workers AI → SQL generation → validation → optional approval → database execution → response → UI
+
+Flow:
+
+1. User submits a natural language question  
+2. Worker discovers schema dynamically from selected database  
+3. Workers AI generates SQL  
+4. Worker enforces guardrails:
+   - SELECT only
+   - single statement
+   - LIMIT 100 enforced  
+5. AI generates reasoning + explanation  
+6. Optional approval step  
+7. Query executes on selected database  
+8. Results + query plan returned  
+
+---
+
+## ⚙️ Cloudflare Components Used
 
 - Cloudflare Workers
-- Workers AI
+- Workers AI (Llama 3)
 - Cloudflare D1
-- Static Assets via Worker asset binding
-- Wrangler for local development and deployment
-- Optional external database clients via `@neondatabase/serverless` and `@clickhouse/client`
+- Static assets via Workers
+- Wrangler
 
-## Agent Design
+---
 
-The SQL agent is intentionally narrow:
+## 🧩 Features
 
-- The prompt includes the live schema so the model stays grounded in the available tables and columns.
-- The schema is discovered dynamically from the database instead of being hardcoded.
-- The Worker rejects any output that is not a single `SELECT` statement.
-- After the SQL is validated, short AI passes explain what the query does and why the model chose it.
-- If the SQL does not include a `LIMIT`, the Worker appends `LIMIT 100`.
-- Only after validation does the Worker execute the SQL against the selected backend.
+- Natural language → SQL
+- Multi-database support (D1, Postgres, ClickHouse)
+- Schema auto-discovery (no hardcoding)
+- SQL safety guardrails
+- Query plan inspection
+- AI reasoning + explanation
+- Optional approval mode
+- Automatic charts
+- Voice input (SpeechRecognition API)
+- Query history (localStorage)
 
-This keeps the working SQL generation pipeline intact while adding a human-readable explanation layer for the UI.
+---
 
-## Voice Input
+## 🗄️ External Database Support
 
-The frontend includes a microphone button that uses the browser `SpeechRecognition` API when available.
+Defaults to D1 if no database is provided.
 
-- Click the microphone button.
-- Speak your analytics question.
-- The transcript is inserted into the input box.
-- The query runs through the normal `POST /` pipeline.
-
-If the browser does not support speech recognition, the app disables the microphone button gracefully.
-
-## UI Features
-
-- Suggested example prompts on first load
-- Database selector for D1, Postgres, and ClickHouse
-- Optional approval mode before executing SQL
-- Automatic charts for simple two-column analytics results
-- Query history saved in the browser
-- Voice input for natural-language questions
-- Query plan inspection and execution timing
-
-## Stack
-
-- TypeScript
-- Browser SpeechRecognition API
-
-## Local Development
-
-1. Create the D1 database:
-
-```bash
-npx wrangler d1 create analytics_db
-```
-
-2. Copy the returned `database_id` into [wrangler.jsonc](/c:/Users/archi/cf-ai-sql-agent/wrangler.jsonc).
-
-3. Apply the schema locally:
-
-```bash
-npx wrangler d1 execute analytics_db --local --file schema.sql
-```
-
-4. Start the Worker:
-
-```bash
-npm run dev
-```
-
-5. Open the app:
-
-```text
-http://127.0.0.1:8787
-```
-
-## Deploy
-
-1. Apply the schema to the remote D1 database:
-
-```bash
-npx wrangler d1 execute analytics_db --remote --file schema.sql
-```
-
-2. Deploy the Worker:
-
-```bash
-npm run deploy
-```
-
-## API Example
-
-```bash
-curl -X POST http://localhost:8787 \
-  -H "content-type: application/json" \
-  -d "{\"question\":\"How many users signed up today?\"}"
-```
-
-Example response:
-
-```json
-{
-  "question": "How many users signed up today?",
-  "generated_sql": "SELECT COUNT(*) FROM users WHERE DATE(signup_date) = DATE('now')",
-  "reasoning": "The AI interpreted the prompt as a request for today's signup count.",
-  "explanation": "This query counts how many users signed up today.",
-  "query_plan": ["SCAN users USING COVERING INDEX idx_signup_date"],
-  "result": [
-    {
-      "COUNT(*)": 2
-    }
-  ]
-}
-```
-
-## External Database Support
-
-The Worker still defaults to Cloudflare D1 when no database object is provided.
-
-Postgres example:
+### Postgres
 
 ```json
 {
@@ -149,7 +117,7 @@ Postgres example:
 }
 ```
 
-ClickHouse example:
+### ClickHouse
 
 ```json
 {
@@ -161,6 +129,103 @@ ClickHouse example:
 }
 ```
 
-If you select `D1` in the UI, the connection string field is hidden and the Worker uses the existing local or deployed D1 binding.
+---
 
-Note: passing external connection strings from the browser is appropriate for a demo or assignment, but production deployments should move credentials to secure server-side secrets or managed connectors.
+## 🔐 Safety
+
+* Only allows SELECT queries
+* Blocks destructive queries
+* Enforces single statement
+* Adds LIMIT automatically
+
+---
+
+## 🎤 Voice Input
+
+* Uses browser SpeechRecognition API
+* Converts speech → query
+* Graceful fallback if unsupported
+
+---
+
+## 💾 Memory / State
+
+* Query history stored in browser (localStorage)
+* Allows replaying past queries
+
+---
+
+## 🧪 Local Development
+
+Create D1 database:
+
+```
+npx wrangler d1 create analytics_db
+```
+
+Apply schema:
+
+```
+npx wrangler d1 execute analytics_db --local --file schema.sql
+```
+
+Run locally:
+
+```
+npm run dev
+```
+
+Open:
+
+[http://127.0.0.1:8787](http://127.0.0.1:8787)
+
+---
+
+## 🚀 Deploy
+
+```
+npm run deploy
+```
+
+---
+
+## ⚠️ Notes
+
+External DB connection strings are passed from the browser for demo purposes.
+
+In production, these should be stored securely using Workers secrets or managed connectors.
+
+---
+
+## 🧠 AI Usage
+
+AI was used to:
+
+* speed up UI and boilerplate work
+* explore new libraries (ClickHouse, Neon)
+* refine prompt design
+
+All core architecture, validation logic, and system design decisions were implemented manually.
+
+See PROMPTS.md for examples.
+
+---
+
+## 📌 Future Improvements
+
+* Adapter-based database abstraction
+* Persistent memory (Durable Objects)
+* Chat-style multi-turn queries
+* Slack / Google Chat integration
+* Query caching
+
+---
+
+## 🧠 Summary
+
+This project demonstrates:
+
+* building with Cloudflare-native tools
+* designing safe AI systems (guardrails + validation)
+* multi-database analytics workflows
+* fast iteration using AI as a development tool

@@ -1,51 +1,96 @@
-# PROMPTS
+# PROMPTS.md
 
-## SQL Generation System Prompt
+This project used AI selectively to accelerate development and learn new tools quickly.
 
-```text
-You are a SQL generator for a Cloudflare D1 database.
-Return exactly one SQL query and nothing else.
+AI was used as a tool, not as a replacement for engineering decisions.
+
+---
+
+## SQL Generation Prompt
+
+You are a SQL generator for an analytics database.
+
 Rules:
-- Only output SQL.
-- Only output a single SELECT statement.
-- Never output INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, PRAGMA, ATTACH, DETACH, REPLACE, or transaction statements.
-- Use only the dynamically discovered schema provided below.
-- If the request cannot be answered with the schema, return: SELECT 'Unable to answer with provided schema' AS message;
-- If the query does not already contain a LIMIT clause, include LIMIT 100.
-```
 
-## Schema Injected Into The Prompt
+* Only output a single SELECT query
+* Never output INSERT, UPDATE, DELETE, DROP, ALTER
+* Use only the provided schema
+* If the query cannot be answered, return a fallback SELECT
+* Always include LIMIT 100 if not present
 
-```text
-Table users
-* id INTEGER
-* name TEXT
-* signup_date TEXT
-
-Table logins
-* id INTEGER
-* user_id INTEGER
-* login_time TEXT
-```
-
-## Prompt Template
-
-```text
-<system prompt above>
+Schema:
+{schema}
 
 User question:
-{{question}}
-```
+{question}
 
-## Explanation Prompt
+---
 
-```text
-You are explaining a SQL query to a non-expert user.
-Return one concise sentence of plain English and nothing else.
+## SQL Explanation Prompt
 
-User question:
-{{question}}
+Explain this SQL query in one sentence for a non-technical user.
 
-SQL query:
-{{sql}}
-```
+Max 25 words.
+Do not explain SQL syntax.
+
+---
+
+## Reasoning Prompt
+
+Explain how the AI interpreted the user's question and why it generated this SQL query.
+
+Keep it short and high-level.
+
+---
+
+## Dialect Guidance
+
+Prompts were adapted for:
+
+* SQLite (D1)
+* PostgreSQL
+* ClickHouse
+
+This ensures compatibility across databases.
+
+---
+
+## AI-Assisted Development
+
+AI tools were used for:
+
+* exploring new libraries (Neon, ClickHouse)
+* scaffolding UI components
+* refining prompt design
+
+All core logic was implemented manually:
+
+* SQL validation
+* query safety guardrails
+* execution routing
+* schema discovery
+
+---
+
+## Learning Acceleration
+
+AI helped quickly understand:
+
+* Cloudflare Workers patterns
+* D1 schema inspection
+* Postgres information_schema
+* ClickHouse system tables
+
+---
+
+## Summary
+
+AI was used as:
+
+* a learning tool
+* a prototyping assistant
+
+Not as:
+
+* a full code generator
+* a replacement for system design
