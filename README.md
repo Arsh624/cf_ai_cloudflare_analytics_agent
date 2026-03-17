@@ -1,4 +1,4 @@
-# cf-ai-sql-agent
+# Cloudflare NL2SQL agent
 
 Database-agnostic AI analytics agent on Cloudflare Workers that lets anyone query real data using natural language instead of SQL. Built on Cloudflare Workers, Workers AI, and D1 that allows anyone to query production data using natural language.
 
@@ -11,13 +11,13 @@ Instead of writing SQL or navigating dashboards, users can simply ask:
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
 https://cf-ai-sql-agent.arsh9532.workers.dev/
 
 ---
 
-## 🧠 What this actually is
+## What this actually is
 
 This is not just a "natural language → SQL" tool.
 
@@ -34,7 +34,7 @@ It:
 
 ---
 
-## 💡 Why this matters (use case)
+## Why this matters (use case)
 
 Inside a company like Cloudflare, a lot of people need data but don't write SQL:
 
@@ -51,7 +51,7 @@ This project changes that to:
 
 ---
 
-## 🔌 Where this fits inside Cloudflare
+## Where this fits inside Cloudflare
 
 This can plug directly into:
 
@@ -68,7 +68,7 @@ No dashboards. No SQL. Just answers.
 
 ---
 
-## 💡 Key Idea
+## Key Idea
 
 Turn data access from:
 > "you need to know the system"
@@ -78,13 +78,13 @@ into:
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 User → UI → Cloudflare Worker → Workers AI → SQL generation → validation → optional approval → database execution → response → UI
 
 ---
 
-## 🔐 Safety-first design
+## Safety-first design
 
 AI is constrained, not trusted blindly:
 
@@ -97,7 +97,7 @@ AI is constrained, not trusted blindly:
 
 ---
 
-## 🗄️ Multi-Database Support
+## Multi-Database Support
 
 The system is database-agnostic:
 
@@ -109,7 +109,7 @@ This allows the same interface to work across different storage systems.
 
 ---
 
-## 🔍 Why this is interesting (engineering POV)
+## Why this is interesting (engineering POV)
 
 This project explores:
 
@@ -121,7 +121,7 @@ This project explores:
 
 ---
 
-## ⚙️ Cloudflare Components Used
+## Cloudflare Components Used
 
 - Cloudflare Workers (execution layer)
 - Workers AI (LLM inference)
@@ -131,7 +131,7 @@ This project explores:
 
 ---
 
-## 🧩 UX Features
+## UX Features
 
 - natural language input
 - voice input (SpeechRecognition API)
@@ -142,7 +142,7 @@ This project explores:
 
 ---
 
-## 🏆 What makes this different
+## What makes this different
 
 Most NL → SQL tools:
 - assume fixed schema
@@ -157,7 +157,7 @@ This system:
 
 ---
 
-## 📡 Example API Usage
+## Example API Usage
 
 ```json
 {
@@ -179,7 +179,7 @@ In production, these should be handled securely via Workers secrets or managed c
 
 ---
 
-## 🧠 AI Usage
+## AI Usage
 
 AI was used to:
 
@@ -193,7 +193,7 @@ See PROMPTS.md for details.
 
 ---
 
-## 📌 Future Improvements
+## Future Improvements
 
 * adapter pattern for database abstraction
 * persistent memory (Durable Objects)
@@ -203,7 +203,7 @@ See PROMPTS.md for details.
 
 ---
 
-## 🧠 Summary
+## Summary
 
 This project demonstrates:
 
