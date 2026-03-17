@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>SQL Agent | Cloudflare Workers AI</title>
+		<link rel="stylesheet" href="./style.css" />
+	</head>
+	<body>
+		<div class="bg-circle"></div>
+		<main>
+			<section class="hero-grid">
+				<div class="panel glass hero-main">
+					<div class="header-flex">
+						<h1>Ask D1 In Plain English.</h1>
+						<div id="db-badge" class="db-badge">Database: D1</div>
+					</div>
+					<p>
+						Ask analytics questions in natural language, route them through Workers AI, and run them
+						against D1, Postgres, or ClickHouse from one interface.
+					</p>
+				</div>
+
+				<div class="panel glass suggestions-panel">
+					<h2>Suggested Queries</h2>
+					<div id="suggestions" class="suggestion-list"></div>
+				</div>
+			</section>
+
+			<section class="panel glass composer">
+				<h2>Question Composer</h2>
+				<div class="database-panel">
+					<div class="field-group">
+						<label for="database-type">Database Type</label>
+						<select id="database-type">
+							<option value="d1">D1</option>
+							<option value="postgres">Postgres</option>
+							<option value="clickhouse">ClickHouse</option>
+						</select>
+					</div>
+					<div class="field-group" id="connection-group" hidden>
+						<label for="connection-string">Connection String</label>
+						<input
+							id="connection-string"
+							type="text"
+							placeholder="postgres://user:password@host:5432/dbname"
+							autocomplete="off"
+						/>
+					</div>
+				</div>
+
+				<div class="input-container">
+					<div class="input-row">
+						<textarea id="question" placeholder="How many users signed up today?"></textarea>
+						<button id="voice" class="voice-button" type="button" aria-label="Use voice input">
+							<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+								<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+								<line x1="12" y1="19" x2="12" y2="23"></line>
+								<line x1="8" y1="23" x2="16" y2="23"></line>
+							</svg>
+						</button>
+					</div>
+					<div class="controls">
+						<div class="action-buttons">
+							<button id="send" type="button">Run Query</button>
+							<button id="approve-run" class="secondary-button" type="button" hidden>Run SQL</button>
+						</div>
+						<label class="toggle-row" for="approval-mode">
+							<input id="approval-mode" type="checkbox" />
+							<span>Require approval before executing queries</span>
+						</label>
+						<div class="timing" id="execution-time">Execution time: waiting for query</div>
+						<div class="status" id="status">
+							<span id="spinner" class="spinner" aria-hidden="true"></span>
+							<span id="status-text">Endpoint: current page</span>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="output">
+				<div class="stack">
+					<div class="panel card result-card">
+						<div class="header-with-action">
+							<h2>Generated SQL</h2>
+							<button id="copy-sql" class="copy-button" type="button" title="Copy SQL">Copy</button>
+						</div>
+						<pre id="sql" class="sql-code">Ask a question to generate SQL.</pre>
+					</div>
+
+					<div class="panel card result-card">
+						<h2>AI Reasoning</h2>
+						<p id="reasoning" class="explanation">AI reasoning will appear here after generation.</p>
+					</div>
+
+					<div class="panel card result-card">
+						<h2>SQL Explanation</h2>
+						<p id="explanation" class="explanation">SQL explanation will appear here after generation.</p>
+					</div>
+
+					<div class="panel card result-card">
+						<h2>Query Plan</h2>
+						<pre id="query-plan">Query plan will appear after execution.</pre>
+					</div>
+
+					<div class="panel card result-card">
+						<h2>Results</h2>
+						<div id="results" class="empty">Run a query to see results.</div>
+					</div>
+
+					<div class="panel card result-card">
+						<h2>Chart</h2>
+						<div id="chart-empty" class="empty">Charts appear automatically for simple analytics queries.</div>
+						<div class="chart-wrap">
+							<canvas id="result-chart" hidden></canvas>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel card history-panel">
+					<h2>Query History</h2>
+					<div id="history" class="history-list"></div>
+					<p class="muted-note" id="history-empty" style="margin-top: 16px;">
+						Your recent prompts stay in this browser.
+					</p>
+				</div>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<p>Built with <strong>Cloudflare Workers</strong>, <strong>Workers AI</strong>, and <strong>D1</strong>. <i class="shape">◈</i></p>
+		</footer>
+
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script type="module" src="./app.js"></script>
+	</body>
+</html>

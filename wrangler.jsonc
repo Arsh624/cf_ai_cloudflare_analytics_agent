@@ -12,7 +12,24 @@
 	},
 	"compatibility_flags": [
 		"nodejs_compat"
-	]
+	],
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS",
+		"run_worker_first": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "analytics_db",
+			"database_id": "425a25e6-a764-48dc-b7d0-2807fd0b7a9e",
+			"preview_database_id": "425a25e6-a764-48dc-b7d0-2807fd0b7a9e"
+		}
+	],
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
